@@ -1,0 +1,90 @@
+NAME=percolate
+CSYM=percolate
+
+current: pd_nt
+
+# ----------------------- NT -----------------------
+
+pd_nt: $(NAME).dll
+
+.SUFFIXES: .dll
+
+# comiler flags for Pentium 4 processor with the Streaming SIMD Extensions 2
+PDINTELCFLAGS = /W3 /WX /DNT /DPD /nologo /O3 /G7 /QaxK
+# comiler flags for Pentium III processor with the Streaming SIMD Extensions
+# PDINTELCFLAGS = /W3 /WX /DNT /DPD /nologo /O3 /G7 /QaxW
+# comiler flags for Pentium processors with MMX™ technology instructions
+# PDINTELCFLAGS = /W3 /WX /DNT /DPD /nologo /O3 /G7 /QaxM
+INTEL = "C:\Programme\Intel\Compiler60\IA32"
+VC="C:\Programme\Microsoft Visual Studio\VC98"
+
+PDINTELINCLUDE = /I. /Ic:\pd\tcl\include /Ic:\pd\src /I$(VC)\include /I$(INTEL)\include /I_headers /I_source
+
+PDNTLDIR = $(VC)\Lib
+ILDIR = $(INTEL)\Lib
+PDINTELLIB = $(PDNTLDIR)\libc.lib \
+	$(PDNTLDIR)\oldnames.lib \
+	$(PDNTLDIR)\kernel32.lib \
+	$(PDNTLDIR)\user32.lib \
+	$(PDNTLDIR)\uuid.lib \
+	c:\pd\bin\pd.lib \
+	$(ILDIR)\libm.lib $(ILDIR)\libirc.lib $(ILDIR)\svml_disp.lib
+
+EXTERNALS = flute~.obj mandolin~.obj plucked~.obj bowed~.obj bowedbar~.obj \
+            clar~.obj brass~.obj blotar~.obj marimba~.obj vibraphone~.obj \
+            agogo~.obj bamboo~.obj cabasa~.obj sleigh~.obj guiro~.obj \
+            chase~.obj escalator~.obj jitter~.obj klutz~.obj random~.obj \
+            flip~.obj weave~.obj dcblock~.obj gQ~.obj munger~.obj scrub~.obj \
+            absmin~.obj absmax~.obj terrain~.obj gen5.obj gen7.obj gen9.obj \
+            gen10.obj gen17.obj gen24.obj gen25.obj metashake~.obj waffle~.obj \
+            sekere~.obj shaker~.obj tamb~.obj wuter~.obj
+
+.c.dll:
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "_source\stk.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\blotar\blotar~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\bowed\bowed~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\bowed bar\bowedbar~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\brass\brass~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\clarinet\clar~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\flute\flute~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\mandolin\mandolin~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "1. Physical Models\plucked\plucked~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "2. Modal Synthesis\agogo\agogo~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "2. Modal Synthesis\marimba\marimba~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "2. Modal Synthesis\vibraphone\vibraphone~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\bamboo\bamboo~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\cabasa\cabasa~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\guiro\guiro~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\meta-shaker\metashake~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\sekere\sekere~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\shaker\shaker~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\sleigh bells\sleigh~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\tamb\tamb~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "3. PhISM\wuter\wuter~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen10\gen10.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen17\gen17.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen20\gen20.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen24\gen24.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen25\gen25.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen5\gen5.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen7\gen7.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "4. MaxGens\gen9\gen9.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\absmax~\absmax~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\absmin~\absmin~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\chase~\chase~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\escal~\escalator~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\flip~\flip~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\jitter~\jitter~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\klutz~\klutz~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\random~\random~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\terrain~\terrain~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\waffle~\waffle~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "5. SID\weave~\weave~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "6. Random DSP\dcblock\dcblock~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "6. Random DSP\gQ\gQ~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "6. Random DSP\munger\munger~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "6. Random DSP\scrubber\scrub~.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c "_source\stk.c"
+	icl $(PDINTELCFLAGS) $(PDINTELINCLUDE) /c $*.c
+	link /dll /out:../PeRColate.dll /export:$(CSYM)_setup $*.obj stk.obj $(EXTERNALS) $(PDINTELLIB)
+

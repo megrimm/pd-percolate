@@ -1,0 +1,29 @@
+#N canvas 447 269 468 318 10;
+#X obj 24 62 osc~;
+#X obj 24 261 dac~;
+#X msg 76 88 size 256;
+#X msg 87 113 frames 16;
+#X text 81 259 MAXFRAMES = 32;
+#X obj 151 164 noise~;
+#N canvas 0 0 450 300 graph1 0;
+#X array buffer 100 float 1;
+#A 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0;
+#X coords 0 1 99 -1 200 140 1;
+#X restore 237 76 graph;
+#X obj 24 210 terrain~ buffer 256 16;
+#X msg 65 62 set buffer;
+#X text 81 244 name of buffer (array) | framesize | number of frames
+;
+#X text 41 29 terrain~;
+#X text 34 192 (signal) X index;
+#X text 159 191 Y index;
+#X connect 0 0 7 0;
+#X connect 2 0 7 0;
+#X connect 3 0 7 0;
+#X connect 5 0 7 1;
+#X connect 7 0 1 0;
+#X connect 7 0 1 1;
+#X connect 8 0 7 0;

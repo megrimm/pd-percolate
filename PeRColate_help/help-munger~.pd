@@ -1,0 +1,375 @@
+#N canvas 126 -3 1007 767 10;
+#X floatatom 39 729 0 0 100 0 - - -;
+#N canvas 331 136 786 621 output 0;
+#X obj 455 510 t b;
+#X obj 455 450 f;
+#X obj 455 390 inlet;
+#X obj 455 540 f;
+#X msg 566 532 0;
+#X msg 455 420 bang;
+#X obj 455 480 moses 1;
+#X obj 566 502 t b f;
+#X obj 535 460 moses 1;
+#X obj 107 121 dbtorms;
+#X obj 535 430 r master-lvl;
+#X obj 107 28 r master-lvl;
+#X obj 455 570 s master-lvl;
+#X obj 36 228 inlet~;
+#X obj 250 258 inlet;
+#X obj 268 283 s master-lvl;
+#X msg 119 57 set \$1;
+#X obj 119 87 outlet;
+#X msg 250 309 \; pd dsp 1;
+#X obj 107 181 line~;
+#X obj 36 258 *~;
+#X obj 36 288 dac~;
+#X obj 107 151 pack 0 50;
+#X text 23 205 audio in;
+#X text 2 313 out both channels;
+#X text 273 182 Level input. Send to master-lvl and start DSP (we infer
+that if you're changing the level you want to hear the network.) If
+you start DSP when it's already running there's no effect.;
+#X text 59 542 here is the previous nonzero master-lvl -->;
+#X text 98 451 recall previous value of master-lvl -->;
+#X text 239 482 test if less than 1 -->;
+#X text 203 510 if true convert to bang -->;
+#X text 218 351 Mute control. If the master level is zero \, restore
+to the last nonzero one \, otherwise zero it.;
+#X text 182 86 <-- update the number box to show new level;
+#X text 178 120 <-- convert from dB to linear units;
+#X text 196 150 <-- make a smooth ramp to avoid clicks or zipper noise
+;
+#X text 333 318 <-- automatically start DSP;
+#X connect 0 0 3 0;
+#X connect 1 0 6 0;
+#X connect 2 0 5 0;
+#X connect 3 0 12 0;
+#X connect 4 0 12 0;
+#X connect 5 0 1 0;
+#X connect 6 0 0 0;
+#X connect 6 1 7 0;
+#X connect 7 0 4 0;
+#X connect 8 1 3 1;
+#X connect 9 0 22 0;
+#X connect 10 0 1 1;
+#X connect 10 0 8 0;
+#X connect 11 0 9 0;
+#X connect 11 0 16 0;
+#X connect 13 0 20 0;
+#X connect 14 0 15 0;
+#X connect 14 0 18 0;
+#X connect 16 0 17 0;
+#X connect 19 0 20 1;
+#X connect 20 0 21 0;
+#X connect 20 0 21 1;
+#X connect 22 0 19 0;
+#X restore 15 750 pd output;
+#X text 24 99 by dan trueman \,;
+#X text 23 108 computer music;
+#X text 23 117 center \, columbia;
+#X text 24 125 university;
+#X msg 64 729 mute;
+#X text 8 6 munger~;
+#X text 8 20 stereo granulator...;
+#X text 11 51 munger~ takes a signal input;
+#X text 9 61 and granulates it \, allowing for;
+#X text 9 71 different transposition and;
+#X obj 16 683 munger~ 3000 ____________________________________________
+;
+#X text 615 26 the 'voices' message tells the munger how many grains
+to;
+#X text 613 36 allow simultaneously (10 by default.) the more \, the
+more;
+#X text 613 46 cpu intensive. you can smoothly sweep this parameter.
+;
+#X text 9 80 granular sampling effects.;
+#X text 613 55 'maxvoices' sets an upper limit to this \, and will
+have some;
+#X text 616 65 impact on performance if set really high (20 by default.)
+;
+#X text 617 75 munger is hardwired for total max of 100 voices.;
+#X text 615 99 'ramptime' sets the length (in ms) of the ramping envelope
+;
+#X text 613 109 on each grain. if the grain is smaller than the ramptime
+\,;
+#X text 613 119 the ramptime will be scaled to half the grain size.
+;
+#X text 613 141 turn the munger on and off \, to save CPU. (1) by default.
+;
+#X text 611 151 (NOTE: this was responsible for a bug in the previous
+;
+#X text 614 160 versions of munger which resulted in frustratingly
+silent;
+#X text 614 169 mungers. fixed now \, I believe.);
+#X text 616 192 constrain how far back in time the munger looks for
+grains.;
+#X text 614 202 the smaller this is \, the smaller the largest grain
+can be.;
+#X text 614 212 the numnger's argument sets the maximum delay length
+;
+#X text 615 221 possible ( and the default value for delaylength.)
+this is a;
+#X text 616 231 super cool parameter to mess with.;
+#X text 618 251 allows grains to play backwards and forwards (0) \,
+just;
+#X text 616 261 forward (1) \, or just backwards (-1). (0) by default.
+;
+#X text 618 285 sets the minimum allowable grainsize. useful when;
+#X text 616 295 randomizing with the 'grain size variation' input.
+;
+#X text 621 326 turn recording on and off. turning off freezes the
+buffer;
+#X text 619 336 on (1) by default.;
+#X text 621 358 set the playback position within the buffer (between
+0 and;
+#X text 622 368 1.) -1 = randomized position (which is the default.)
+It is;
+#X text 622 378 possible to get some interesting stretching effect
+by;
+#X text 621 388 scrubbing through this with 'record' on \, and some
+good;
+#X text 622 397 transposition effects with 'record' off.;
+#X text 625 417 set the baseline gain for grains (1 by default) \,
+and set a;
+#X text 623 427 randomization range around that baseline (0 by default.)
+;
+#X text 624 468 apply pitch sieves to the grains. control how deeply
+into;
+#X text 622 477 these sieves to go with the 'grain pitch variation'
+input;
+#X text 622 487 (below.) floats work too. set to 'smooth' (no sieve)
+by;
+#X text 622 496 default.;
+#X text 626 580 posts the values of user controlled variables to the
+;
+#X text 625 591 console;
+#X text 626 607 impolitely clears the internal sample buffer.;
+#X floatatom 72 660 5 0 0 0 - - -;
+#X floatatom 128 660 5 0 0 0 - - -;
+#X floatatom 184 660 5 0 0 0 - - -;
+#X floatatom 240 660 5 0 0 0 - - -;
+#X floatatom 296 660 5 0 0 0 - - -;
+#X floatatom 353 660 5 0 0 0 - - -;
+#X text 81 631 grain;
+#X text 68 640 separation;
+#X text 134 640 variation;
+#X text 198 631 grain;
+#X text 198 640 size;
+#X text 250 631 grain;
+#X text 251 640 pitch;
+#X text 299 640 variation;
+#X text 300 622 grain;
+#X text 299 631 pitch;
+#X text 363 632 stereo;
+#X text 363 640 spread;
+#X text 132 624 grain;
+#X text 134 633 rate;
+#X text 202 706 optional argument sets the maximum delay time (in ms)
+;
+#X text 203 716 and allocates memory \, so be careful with large values.
+;
+#X text 202 726 (3000ms by default.) this also constrains the maximum
+;
+#X text 203 736 grain size \, to 1/3rd the maximum delay time.;
+#X obj 203 19 loadbang;
+#X obj 203 40 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 1 1
+;
+#X obj 203 58 metro 250;
+#X obj 203 78 counter 0 15;
+#N canvas 0 0 450 300 graph2 0;
+#X array mycoll 16 float 1;
+#A 0 57 45 57 57 45 57 57 47 55 47 59 60 60 57 57 57;
+#X coords 0 72 15 40 100 70 1;
+#X restore 57 153 graph;
+#X obj 203 99 tabread mycoll;
+#X obj 202 121 sel 0;
+#X obj 202 145 mtof;
+#X obj 202 170 * 2;
+#X msg 227 192 20;
+#X obj 202 214 line~;
+#X obj 202 237 osc~ 200;
+#X text 429 1 send some messages...;
+#X floatatom 431 19 5 0 0 0 - - -;
+#X msg 431 35 voices \$1;
+#X msg 443 54 maxvoices 30;
+#X floatatom 436 96 5 0 0 0 - - -;
+#X msg 436 112 ramptime \$1;
+#X obj 439 142 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 1
+1;
+#X msg 439 160 power \$1;
+#X floatatom 439 199 5 0 0 0 - - -;
+#X msg 439 215 delaylength_ms \$1;
+#X floatatom 441 243 5 0 0 0 - - -;
+#X msg 441 259 ambidirectional \$1;
+#X msg 441 288 minsize 5;
+#X obj 443 312 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 0
+1;
+#X msg 443 330 record \$1;
+#X floatatom 444 362 5 0 0 0 - - -;
+#X msg 444 378 position \$1;
+#X floatatom 411 422 5 0 0 0 - - -;
+#X msg 446 420 gain \$1;
+#X floatatom 411 441 5 0 0 0 - - -;
+#X msg 446 439 rand_gain \$1;
+#X msg 446 466 smooth;
+#X msg 446 486 tempered;
+#X msg 446 506 scale 0 4 7 -2 12 15;
+#X msg 446 526 scale 0 4 4 4 7 7 11 11 14 18 -12 -12 -12;
+#X msg 446 546 0 -2 2 -4 4 -6 6 -8 8 -10 10 -12 12 -14 14 -16 16 -18
+18 -20 20;
+#X msg 446 582 state;
+#X msg 446 607 clear;
+#X obj 16 659 r msgs;
+#X obj 403 527 s msgs;
+#X obj 396 198 s msgs;
+#X msg 83 316 1;
+#X msg 88 335 2;
+#X msg 94 354 3;
+#X text 26 263 select a sound source;
+#X text 37 311 oscil;
+#X text 28 321 sequence;
+#X text 34 339 sample;
+#N canvas 0 0 473 362 choose 0;
+#X obj 78 50 inlet;
+#X obj 94 93 sel 1 2 3;
+#X msg 108 122 1 0 0;
+#X msg 114 143 0 1 0;
+#X msg 121 164 0 0 1;
+#X obj 138 188 unpack 0 0 0;
+#X obj 240 52 inlet~;
+#X obj 297 52 inlet~;
+#X obj 354 52 inlet~;
+#X obj 240 223 *~ 0;
+#X obj 303 221 *~ 0;
+#X obj 373 225 *~ 0;
+#X obj 346 257 +~;
+#X obj 280 289 +~;
+#X obj 287 331 outlet~;
+#X floatatom 121 223 5 0 0 0 - - -;
+#X floatatom 156 221 5 0 0 0 - - -;
+#X floatatom 190 221 5 0 0 0 - - -;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;
+#X connect 1 1 3 0;
+#X connect 1 2 4 0;
+#X connect 2 0 5 0;
+#X connect 3 0 5 0;
+#X connect 4 0 5 0;
+#X connect 5 0 9 1;
+#X connect 5 0 15 0;
+#X connect 5 1 10 1;
+#X connect 5 1 16 0;
+#X connect 5 2 11 1;
+#X connect 5 2 17 0;
+#X connect 6 0 9 0;
+#X connect 7 0 10 0;
+#X connect 8 0 11 0;
+#X connect 9 0 13 0;
+#X connect 10 0 12 0;
+#X connect 11 0 12 1;
+#X connect 12 0 13 1;
+#X connect 13 0 14 0;
+#X restore 82 390 pd choose;
+#X obj 246 335 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X obj 246 353 openpanel;
+#X obj 246 392 soundfiler;
+#N canvas 0 0 450 300 graph3 0;
+#X array mysample 151193 float 0;
+#X coords 0 1 151192 -1 100 70 1;
+#X restore 307 291 graph;
+#X obj 338 240 adc~;
+#X text 52 360 adc;
+#X msg 246 372 read -resize \$1 mysample;
+#X floatatom 245 448 12 0 0 0 - - -;
+#X obj 245 529 phasor~;
+#X floatatom 245 412 20 0 0 0 - - -;
+#X obj 245 428 expr (60000/$f1);
+#X obj 245 485 f;
+#X obj 245 466 bng 15 250 50 0 empty empty empty 0 -6 0 8 -262144 -1
+-1;
+#X obj 245 508 * 1;
+#X text 308 398 length in samples;
+#X obj 83 294 loadbang;
+#X obj 187 595 snapshot~;
+#X floatatom 187 618 5 0 0 0 - - -;
+#X obj 187 571 metro 20;
+#X obj 186 549 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 0
+1;
+#X obj 244 574 tabread4~ mysample;
+#X obj 244 552 *~ 88200;
+#X connect 0 0 1 1;
+#X connect 1 0 0 0;
+#X connect 6 0 1 2;
+#X connect 12 0 1 0;
+#X connect 52 0 12 1;
+#X connect 53 0 12 2;
+#X connect 54 0 12 3;
+#X connect 55 0 12 4;
+#X connect 56 0 12 5;
+#X connect 57 0 12 6;
+#X connect 76 0 77 0;
+#X connect 77 0 78 0;
+#X connect 78 0 79 0;
+#X connect 79 0 81 0;
+#X connect 81 0 82 0;
+#X connect 82 1 83 0;
+#X connect 83 0 84 0;
+#X connect 84 0 85 0;
+#X connect 84 0 86 0;
+#X connect 85 0 86 1;
+#X connect 86 0 87 0;
+#X connect 87 0 126 1;
+#X connect 89 0 90 0;
+#X connect 90 0 118 0;
+#X connect 91 0 118 0;
+#X connect 92 0 93 0;
+#X connect 93 0 118 0;
+#X connect 94 0 95 0;
+#X connect 95 0 118 0;
+#X connect 96 0 97 0;
+#X connect 97 0 118 0;
+#X connect 98 0 99 0;
+#X connect 99 0 118 0;
+#X connect 100 0 118 0;
+#X connect 101 0 102 0;
+#X connect 102 0 118 0;
+#X connect 103 0 104 0;
+#X connect 104 0 118 0;
+#X connect 105 0 106 0;
+#X connect 106 0 117 0;
+#X connect 107 0 108 0;
+#X connect 108 0 117 0;
+#X connect 109 0 117 0;
+#X connect 110 0 117 0;
+#X connect 111 0 117 0;
+#X connect 112 0 117 0;
+#X connect 113 0 117 0;
+#X connect 114 0 117 0;
+#X connect 115 0 117 0;
+#X connect 116 0 12 0;
+#X connect 119 0 126 0;
+#X connect 120 0 126 0;
+#X connect 121 0 126 0;
+#X connect 126 0 12 0;
+#X connect 127 0 128 0;
+#X connect 128 0 133 0;
+#X connect 129 0 136 0;
+#X connect 131 0 126 3;
+#X connect 133 0 129 0;
+#X connect 134 0 138 1;
+#X connect 134 0 139 0;
+#X connect 134 0 135 1;
+#X connect 135 0 148 0;
+#X connect 136 0 137 0;
+#X connect 137 0 134 0;
+#X connect 138 0 140 0;
+#X connect 139 0 138 0;
+#X connect 140 0 135 0;
+#X connect 142 0 119 0;
+#X connect 143 0 144 0;
+#X connect 145 0 143 0;
+#X connect 146 0 145 0;
+#X connect 147 0 126 2;
+#X connect 147 0 143 0;
+#X connect 148 0 147 0;

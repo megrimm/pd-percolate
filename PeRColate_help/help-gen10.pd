@@ -1,0 +1,182 @@
+#N canvas 422 15 601 631 10;
+#X floatatom 47 382 0 0 100 0 - - -;
+#N canvas 331 136 786 621 output 0;
+#X obj 455 510 t b;
+#X obj 455 450 f;
+#X obj 455 390 inlet;
+#X obj 455 540 f;
+#X msg 566 532 0;
+#X msg 455 420 bang;
+#X obj 455 480 moses 1;
+#X obj 566 502 t b f;
+#X obj 535 460 moses 1;
+#X obj 107 121 dbtorms;
+#X obj 535 430 r master-lvl;
+#X obj 107 28 r master-lvl;
+#X obj 455 570 s master-lvl;
+#X obj 36 228 inlet~;
+#X obj 250 258 inlet;
+#X obj 268 283 s master-lvl;
+#X msg 119 57 set \$1;
+#X obj 119 87 outlet;
+#X msg 250 309 \; pd dsp 1;
+#X obj 107 181 line~;
+#X obj 36 258 *~;
+#X obj 36 288 dac~;
+#X obj 107 151 pack 0 50;
+#X text 23 205 audio in;
+#X text 2 313 out both channels;
+#X text 273 182 Level input. Send to master-lvl and start DSP (we infer
+that if you're changing the level you want to hear the network.) If
+you start DSP when it's already running there's no effect.;
+#X text 59 542 here is the previous nonzero master-lvl -->;
+#X text 98 451 recall previous value of master-lvl -->;
+#X text 239 482 test if less than 1 -->;
+#X text 203 510 if true convert to bang -->;
+#X text 218 351 Mute control. If the master level is zero \, restore
+to the last nonzero one \, otherwise zero it.;
+#X text 182 86 <-- update the number box to show new level;
+#X text 178 120 <-- convert from dB to linear units;
+#X text 196 150 <-- make a smooth ramp to avoid clicks or zipper noise
+;
+#X text 333 318 <-- automatically start DSP;
+#X connect 0 0 3 0;
+#X connect 1 0 6 0;
+#X connect 2 0 5 0;
+#X connect 3 0 12 0;
+#X connect 4 0 12 0;
+#X connect 5 0 1 0;
+#X connect 6 0 0 0;
+#X connect 6 1 7 0;
+#X connect 7 0 4 0;
+#X connect 8 1 3 1;
+#X connect 9 0 22 0;
+#X connect 10 0 1 1;
+#X connect 10 0 8 0;
+#X connect 11 0 9 0;
+#X connect 11 0 16 0;
+#X connect 13 0 20 0;
+#X connect 14 0 15 0;
+#X connect 14 0 18 0;
+#X connect 16 0 17 0;
+#X connect 19 0 20 1;
+#X connect 20 0 21 0;
+#X connect 20 0 21 1;
+#X connect 22 0 19 0;
+#X restore 23 404 pd output;
+#X msg 72 382 mute;
+#X obj 25 -13 tgl 15 0 empty empty empty 0 -6 0 8 -262144 -1 -1 0 1
+;
+#X obj 25 7 metro 125;
+#X obj 25 28 counter 0 11;
+#X obj 25 49 tabread mycoll;
+#N canvas 0 0 450 300 graph2 0;
+#X array mycoll 12 float 1;
+#A 0 70 73 79 72 75 73 68 70 79 80 85 82;
+#X coords 0 90 11 60 100 70 1;
+#X restore 121 27 graph;
+#X obj 25 71 mtof;
+#X msg 25 93 \$1 20;
+#X obj 25 115 line~;
+#X obj 43 250 vsl 9 80 0 1 0 0 empty empty empty 0 -8 0 8 -262144 -1
+-1 0 1;
+#X obj 24 336 *~ 1;
+#X text 8 -191 gen10;
+#X text 8 -177 harmonic wavetable generator;
+#X text 8 -144 gen10 -- give it a list of harmonic;
+#X text 8 -135 partial amplitudes and it will put out;
+#X text 8 -126 index/amplitude pairs that can be;
+#X text 8 -118 written into an array.;
+#X text 9 -103 ported from real-time cmix \, by brad;
+#X text 8 -94 garton and dave topper;
+#X obj 25 139 tabosc4~ mywave;
+#N canvas 0 0 450 300 graph2 0;
+#X array mywave 259 float 1;
+#A 0 0.0668828 0.133361 0.199034 0.263515 0.326431 0.387429 0.446182
+0.502393 0.555796 0.606162 0.653299 0.697053 0.737311 0.774001 0.807089
+0.83658 0.862516 0.884973 0.904059 0.919908 0.932683 0.942562 0.949744
+0.954438 0.956861 0.957236 0.955784 0.952724 0.948266 0.942614 0.935954
+0.928462 0.920294 0.911592 0.902476 0.893049 0.883395 0.873583 0.86366
+0.853662 0.843608 0.833507 0.823356 0.813146 0.80286 0.792479 0.781979
+0.77134 0.760539 0.749559 0.738388 0.727015 0.71544 0.703666 0.691702
+0.679565 0.667278 0.654868 0.642366 0.629808 0.617231 0.604675 0.592179
+0.579781 0.567518 0.555423 0.543525 0.531849 0.520414 0.509235 0.498319
+0.487668 0.477279 0.467142 0.457243 0.447565 0.438086 0.42878 0.419622
+0.410585 0.401641 0.392764 0.383931 0.375118 0.366308 0.357484 0.348637
+0.339759 0.330847 0.321903 0.312932 0.303944 0.294951 0.285967 0.27701
+0.268096 0.259244 0.250472 0.241797 0.233233 0.224792 0.216486 0.208319
+0.200294 0.192412 0.184666 0.17705 0.16955 0.162152 0.154839 0.147592
+0.14039 0.13321 0.126033 0.118837 0.111603 0.104313 0.0969519 0.0895089
+0.0819751 0.0743458 0.06662 0.0588003 0.0508932 0.0429084 0.0348584
+0.0267585 0.0186256 0.0104779 0.00233403 -0.00578752 -0.0138693 -0.0218956
+-0.029853 -0.0377311 -0.045523 -0.0532256 -0.06084 -0.0683716 -0.07583
+-0.0832291 -0.0905864 -0.097923 -0.105263 -0.112632 -0.120058 -0.127569
+-0.135193 -0.142958 -0.150887 -0.159004 -0.167326 -0.175869 -0.184642
+-0.19365 -0.202892 -0.212361 -0.222047 -0.23193 -0.24199 -0.2522 -0.262529
+-0.272943 -0.283409 -0.293888 -0.304345 -0.314742 -0.325047 -0.335228
+-0.345258 -0.355114 -0.364778 -0.374239 -0.383491 -0.392534 -0.401378
+-0.410034 -0.418523 -0.42687 -0.435105 -0.443263 -0.451382 -0.459503
+-0.467665 -0.475913 -0.484288 -0.492829 -0.501574 -0.510557 -0.519808
+-0.529352 -0.539209 -0.549396 -0.55992 -0.570786 -0.581992 -0.593532
+-0.605395 -0.617567 -0.63003 -0.642762 -0.655742 -0.668945 -0.682348
+-0.695925 -0.709654 -0.723511 -0.737472 -0.751518 -0.765626 -0.779776
+-0.793946 -0.808113 -0.822253 -0.836337 -0.850333 -0.8642 -0.877895
+-0.891361 -0.904536 -0.917343 -0.929697 -0.941497 -0.952632 -0.962974
+-0.972384 -0.98071 -0.987789 -0.993445 -0.997493 -0.999744 -1 -0.998064
+-0.99374 -0.986833 -0.97716 -0.964545 -0.948831 -0.929878 -0.907565
+-0.881802 -0.852522 -0.819692 -0.783313 -0.74342 -0.700084 -0.653416
+-0.603562 -0.550707 -0.49507 -0.436906 -0.376502 -0.314172 -0.250257
+-0.185119 -0.119135 -0.0526955 0.0138014 0;
+#X coords 0 1 258 -1 100 70 1;
+#X restore 308 81 graph;
+#X obj 270 177 t b l;
+#X obj 270 157 r timb;
+#X obj 312 -181 loadbang;
+#X obj 268 57 s timb;
+#X floatatom 295 240 5 0 0 0 - - -;
+#X floatatom 350 240 10 0 0 0 - - -;
+#X obj 295 218 unpack f f;
+#X obj 293 266 tabwrite mywave;
+#X obj 295 199 gen10 259 0;
+#X msg 312 -79 1 0.5 0.25 0.125 0.06 0.03 0.015;
+#X msg 312 -60 1 0.9 0.8 0.7 0.6 0.5 0.4;
+#X msg 312 -40 0 1 0 0.5 0 0.25 0;
+#X msg 312 -20 1 0 0.5 0 0.25 0 0.125;
+#X msg 312 -1 1 0.7 0.7 0.7 0.7 0.7 0.7;
+#X msg 312 19 1 0.5 0.9 0.4 0.8 0.3 0.7;
+#X msg 312 40 1 0.1 0.5 0.333 0.25 0.666 0.0125;
+#X msg 43 225 0.99;
+#X msg 43 205 loadbang;
+#X text 327 -120 list of amplitudes of succesive harmonics;
+#X text 327 -110 (begins with fundamental);
+#X text 9 -76 by r. luke dubois \,;
+#X text 8 -68 computer music center \,;
+#X text 8 -60 columbia university;
+#X connect 0 0 1 1;
+#X connect 1 0 0 0;
+#X connect 2 0 1 2;
+#X connect 3 0 4 0;
+#X connect 6 0 8 0;
+#X connect 8 0 9 0;
+#X connect 9 0 10 0;
+#X connect 10 0 21 0;
+#X connect 11 0 12 1;
+#X connect 12 0 1 0;
+#X connect 21 0 12 0;
+#X connect 23 1 31 0;
+#X connect 24 0 23 0;
+#X connect 25 0 32 0;
+#X connect 27 0 30 1;
+#X connect 28 0 30 0;
+#X connect 29 0 27 0;
+#X connect 29 1 28 0;
+#X connect 31 0 29 0;
+#X connect 32 0 26 0;
+#X connect 33 0 26 0;
+#X connect 34 0 26 0;
+#X connect 35 0 26 0;
+#X connect 36 0 26 0;
+#X connect 37 0 26 0;
+#X connect 38 0 26 0;
+#X connect 39 0 11 0;
+#X connect 40 0 39 0;
