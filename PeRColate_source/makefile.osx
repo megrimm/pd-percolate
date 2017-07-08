@@ -222,7 +222,7 @@ PD = /Applications/Pd.app/Contents/Resources/bin/pd
 
 MACOSXLDFLAGS = -bundle -bundle_loader $(PD) -flat_namespace
 
-MACOSXINCLUDE =  -I _headers -I /Applications/Pd.app/Contents/Resources/src
+MACOSXINCLUDE =  -I _headers -I /Applications/Pd.app/Contents/Resources/include
 
 MACOSX_OBJECTS = $(LINUX_SOURCES:.c=.pd_darwin_o)
 MACOSX_OBJECTS2 = $(LINUX_OBJECTS2:.o=.pd_darwin_o)
