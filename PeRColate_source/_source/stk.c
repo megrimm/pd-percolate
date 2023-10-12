@@ -36,13 +36,7 @@
 #include "stk.h"
 #include "sinewave.h"
 #include <fcntl.h>
-#if defined(MSP)
-#include <unix.h>
-#include <rand.c>
-#endif
-#ifdef PD
 #include "m_pd.h"
-#endif
 
 /***********************************************/ 
 /*  Simple Bow Table Object, after Smith       */
@@ -392,7 +386,7 @@ void DLineA_alloc(DLineA *delayLine, long max_length)
 	delayLine->inputs = getbytes(delayLine->length * sizeof(float));
 #endif
   	if (!delayLine->inputs) {
-		error("DlineA: out of memory");
+		pd_error(NULL, "DlineA: out of memory");
 		return;
   	}
 	DLineA_clear(delayLine);
@@ -403,12 +397,7 @@ void DLineA_alloc(DLineA *delayLine, long max_length)
 void DLineA_free(DLineA *delayLine)
 {
 	if (delayLine->inputs)
-#ifdef MSP
-		t_freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
-#ifdef PD
 	    freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
 }
 
 void DLineA_clear(DLineA *delayLine)
@@ -494,7 +483,7 @@ void DLineL_alloc(DLineL *delayLine, long max_length)
 	delayLine->inputs = getbytes(delayLine->length * sizeof(float));
 #endif
   	if (!delayLine->inputs) {
-		error("DlineA: out of memory");
+		pd_error(NULL, "DlineA: out of memory");
 		return;
   	}
 	DLineL_clear(delayLine);
@@ -505,12 +494,7 @@ void DLineL_alloc(DLineL *delayLine, long max_length)
 void DLineL_free(DLineL *delayLine)
 {
 	if (delayLine->inputs)
-#ifdef MSP
-		t_freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
-#ifdef PD
 	    freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
 }
 
 void DLineL_clear(DLineL *delayLine)
@@ -584,7 +568,7 @@ void DLineN_alloc(DLineN *delayLine, long max_length)
   delayLine->inputs = getbytes(delayLine->length * sizeof(float));
 #endif
   if (!delayLine->inputs) {
-		error("DlineN: out of memory");
+		pd_error(NULL, "DlineN: out of memory");
 		return;
   }
   DLineN_clear(delayLine);
@@ -595,12 +579,7 @@ void DLineN_alloc(DLineN *delayLine, long max_length)
 void DLineN_free(DLineN *delayLine)
 {
 	if (delayLine->inputs)
-#ifdef MSP
-		t_freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
-#ifdef PD
         freebytes(delayLine->inputs, delayLine->length * sizeof(float));
-#endif
 }
 
 void DLineN_clear(DLineN *delayLine)
@@ -662,12 +641,7 @@ void RawWvIn_alloc(RawWvIn *inwave, char *fileName, char *mode)
     stat(fileName, &bufinfo);
     fdlength = bufinfo.st_size/sizeof(short);
     inwave->length = fdlength;
-#ifdef MSP
-    inwave->data = t_getbytes((fdlength+1) * sizeof(float));
-#endif
-#ifdef PD
 	inwave->data = getbytes((fdlength+1) * sizeof(float));
-#endif
 	if (!inwave->data) {
 		post("RawWvIn: out of memory!");
 		return;
@@ -714,12 +688,7 @@ void RawWvIn_alloc(RawWvIn *inwave, char *fileName, char *mode)
 void RawWvIn_free(RawWvIn *inwave)
 {
 	if (inwave->data)
-#ifdef MSP
-		t_freebytes(inwave->data, (inwave->length + 1) * sizeof(float));
-#endif
-#ifdef PD
 	    freebytes(inwave->data, (inwave->length + 1) * sizeof(float));
-#endif
 }
 
 
@@ -1159,12 +1128,7 @@ void HeaderSnd_alloc(HeaderSnd *inwave, float *sndarray, long arraylen, char *mo
 void HeaderSnd_free(HeaderSnd *inwave)
 {
 	if (inwave->data)
-#ifdef MSP
-		t_freebytes(inwave->data, (inwave->length+1) * sizeof(float));
-#endif
-#ifdef PD
 	    freebytes(inwave->data, (inwave->length+1) * sizeof(float));
-#endif
 }
 
 

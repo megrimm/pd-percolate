@@ -380,7 +380,7 @@ static void *gen5_new(t_floatarg n, t_floatarg o)
 	x->g_table=NULL;
 	x->g_table = (t_float*) getbytes(sizeof(t_float) * BUFFER);
 	if (x->g_table == NULL) {
-		error("memory allocation error\n"); // whoops, out of memory...
+		perror("memory allocation error\n"); // whoops, out of memory...
 		return (x);
 	}
 

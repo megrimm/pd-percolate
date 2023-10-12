@@ -60,6 +60,11 @@ jobs:
       run: | 
         make extension=d_arm64
         make extension=d_amd64
+    
+    - name: Help Patches
+      run: |
+        mv PeRColate_help/*.pd .
+
 
     - name: Upload Object
       uses: actions/upload-artifact@v3

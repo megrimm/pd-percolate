@@ -382,7 +382,7 @@ void *gen17_new(t_floatarg n, t_floatarg o)
 	x->g_table = (float*)getbytes(sizeof(float) * BUFFER);
 	if (x->g_table == NULL)
 	{
-		error("memory allocation error\n"); // whoops, out of memory...
+		perror("memory allocation error\n"); // whoops, out of memory...
 		return (x);
 	}
 
