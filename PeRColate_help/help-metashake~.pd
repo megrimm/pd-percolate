@@ -1,126 +1,37 @@
-#N canvas 122 7 898 645 10;
-#X floatatom 228 447 0 0 100 0 - - -;
-#N canvas 331 136 786 621 output 0;
-#X obj 455 510 t b;
-#X obj 455 450 f;
-#X obj 455 390 inlet;
-#X obj 455 540 f;
-#X msg 566 532 0;
-#X msg 455 420 bang;
-#X obj 455 480 moses 1;
-#X obj 566 502 t b f;
-#X obj 535 460 moses 1;
-#X obj 107 121 dbtorms;
-#X obj 535 430 r master-lvl;
-#X obj 107 28 r master-lvl;
-#X obj 455 570 s master-lvl;
-#X obj 36 228 inlet~;
-#X obj 250 258 inlet;
-#X obj 268 283 s master-lvl;
-#X msg 119 57 set \$1;
-#X obj 119 87 outlet;
-#X msg 250 309 \; pd dsp 1;
-#X obj 107 181 line~;
-#X obj 36 258 *~;
-#X obj 36 288 dac~;
-#X obj 107 151 pack 0 50;
-#X text 23 205 audio in;
-#X text 2 313 out both channels;
-#X text 273 182 Level input. Send to master-lvl and start DSP (we infer
-that if you're changing the level you want to hear the network.) If
-you start DSP when it's already running there's no effect.;
-#X text 59 542 here is the previous nonzero master-lvl -->;
-#X text 98 451 recall previous value of master-lvl -->;
-#X text 239 482 test if less than 1 -->;
-#X text 203 510 if true convert to bang -->;
-#X text 218 351 Mute control. If the master level is zero \, restore
-to the last nonzero one \, otherwise zero it.;
-#X text 182 86 <-- update the number box to show new level;
-#X text 178 120 <-- convert from dB to linear units;
-#X text 196 150 <-- make a smooth ramp to avoid clicks or zipper noise
-;
-#X text 333 318 <-- automatically start DSP;
-#X connect 0 0 3 0;
-#X connect 1 0 6 0;
-#X connect 2 0 5 0;
-#X connect 3 0 12 0;
-#X connect 4 0 12 0;
-#X connect 5 0 1 0;
-#X connect 6 0 0 0;
-#X connect 6 1 7 0;
-#X connect 7 0 4 0;
-#X connect 8 1 3 1;
-#X connect 9 0 22 0;
-#X connect 10 0 1 1;
-#X connect 10 0 8 0;
-#X connect 11 0 9 0;
-#X connect 11 0 16 0;
-#X connect 13 0 20 0;
-#X connect 14 0 15 0;
-#X connect 14 0 18 0;
-#X connect 16 0 17 0;
-#X connect 19 0 20 1;
-#X connect 20 0 21 0;
-#X connect 20 0 21 1;
-#X connect 22 0 19 0;
-#X restore 204 469 pd output;
-#X msg 253 448 mute;
+#N canvas 861 32 898 645 10;
 #X text 14 45 ported from the STK (by;
 #X text 14 55 perry cook and gary scavone.);
 #X text 24 91 by dan trueman \,;
 #X text 23 102 computer music;
 #X text 24 123 university;
 #X text 23 113 center \, columbia;
-#X obj 421 125 hsl 128 9 0 254 0 0 p1 empty empty -2 -6 128 8 -262144
--1 -1 7600 1;
+#X obj 421 125 hsl 128 9 0 254 0 0 p1 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
 #X text 15 7 metashake~;
 #X text 15 19 perry cook's PhiSM models;
-#X text 26 506 metashaker~ is an interface to the seven PhiSM percussion
-;
-#X text 26 516 the model takes the instrument name in its left inlet
-to;
-#X text 26 526 set its 'mode': maraca \, cabasa \, sekere \, tambourine
-\, bamboo \,;
-#X text 26 536 guiro \, sleigh \, and off. you can control the number
-of;
-#X text 26 546 objects in the model \, damping \, wind/velocity energy
-\, several;
-#X text 26 556 resonances \, and some other parameters specific to
-certain;
-#X text 26 566 models. the best thing to do is start with the presets
-and;
-#X text 26 576 play around. like all physical models \, certain parameters
-\,;
-#X text 26 586 such as damping and resonant spread \, will greatly
-effect the;
-#X text 26 596 level of the output signal. also the sound will drop
-off if;
-#X text 26 606 the parameters are not tweaked \, just like any 'real'
-;
+#X text 26 506 metashaker~ is an interface to the seven PhiSM percussion;
+#X text 26 516 the model takes the instrument name in its left inlet to;
+#X text 26 526 set its 'mode': maraca \, cabasa \, sekere \, tambourine \, bamboo \,;
+#X text 26 536 guiro \, sleigh \, and off. you can control the number of;
+#X text 26 546 objects in the model \, damping \, wind/velocity energy \, several;
+#X text 26 556 resonances \, and some other parameters specific to certain;
+#X text 26 566 models. the best thing to do is start with the presets and;
+#X text 26 576 play around. like all physical models \, certain parameters \,;
+#X text 26 586 such as damping and resonant spread \, will greatly effect the;
+#X text 26 596 level of the output signal. also the sound will drop off if;
+#X text 26 606 the parameters are not tweaked \, just like any 'real';
 #X text 26 616 percussion instrument.;
-#X obj 203 405 metashake~ _________________________________________________
-;
+#X obj 203 405 metashake~ _________________________________________________;
 #X text 239 119 number of objects;
-#X obj 421 142 hsl 128 9 0 1 0 0 p2 empty empty -2 -6 128 8 -262144
--1 -1 4100 1;
-#X obj 421 159 hsl 128 9 0 1 0 0 p3 empty empty -2 -6 128 8 -262144
--1 -1 6300 1;
-#X obj 421 176 hsl 128 9 20 20000 0 0 p4 empty empty -2 -6 128 8 -262144
--1 -1 5800 1;
-#X obj 421 193 hsl 128 9 20 20000 0 0 p5 empty empty -2 -6 128 8 -262144
--1 -1 5500 1;
-#X obj 421 210 hsl 128 9 20 20000 0 0 p6 empty empty -2 -6 128 8 -262144
--1 -1 2700 1;
-#X obj 421 227 hsl 128 9 20 20000 0 0 p7 empty empty -2 -6 128 8 -262144
--1 -1 10100 1;
-#X obj 421 244 hsl 128 9 20 20000 0 0 p8 empty empty -2 -6 128 8 -262144
--1 -1 6200 1;
-#X obj 421 261 hsl 128 9 0 0.0001 0 0 p9 empty empty -2 -6 128 8 -262144
--1 -1 3700 1;
-#X obj 421 278 hsl 128 9 0 1 0 0 p10 empty empty -2 -6 128 8 -262144
--1 -1 9000 1;
-#X obj 421 295 hsl 128 9 0 1 0 0 p11 empty empty -2 -6 128 8 -262144
--1 -1 4000 1;
+#X obj 421 142 hsl 128 9 0 1 0 0 p2 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 159 hsl 128 9 0 1 0 0 p3 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 176 hsl 128 9 20 20000 0 0 p4 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 193 hsl 128 9 20 20000 0 0 p5 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 210 hsl 128 9 20 20000 0 0 p6 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 227 hsl 128 9 20 20000 0 0 p7 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 244 hsl 128 9 20 20000 0 0 p8 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 261 hsl 128 9 0 0.0001 0 0 p9 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 278 hsl 128 9 0 1 0 0 p10 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
+#X obj 421 295 hsl 128 9 0 1 0 0 p11 empty empty -2 -6 0 8 #fcfcfc #000000 #000000 0 1;
 #X text 239 136 damping;
 #X text 239 153 energy;
 #X text 239 170 resonance;
@@ -133,7 +44,7 @@ off if;
 #X text 239 289 resonance random;
 #X text 345 137 [0 - 1];
 #X text 345 120 [0 - 254];
-#X symbolatom 246 78 10 0 0 0 - - -;
+#X symbolatom 246 78 10 0 0 0 - - - 0;
 #N canvas 0 0 539 419 instr 0;
 #X obj 135 36 inlet;
 #X obj 135 73 sel 0 1 2 3 4 5 6 7;
@@ -191,20 +102,19 @@ off if;
 #X connect 19 0 2 0;
 #X connect 20 0 2 0;
 #X restore 203 52 pd instr;
-#X obj 203 24 hradio 15 1 0 8 empty empty empty 0 -6 0 8 -262144 -1
--1 2;
+#X obj 203 24 hradio 15 1 0 8 empty empty empty 0 -6 0 8 #fcfcfc #000000 #000000 0;
 #X text 202 3 choose instrument;
-#X floatatom 553 126 5 0 0 0 - - -;
-#X floatatom 553 143 5 0 0 0 - - -;
-#X floatatom 553 160 5 0 0 0 - - -;
-#X floatatom 553 177 9 0 0 0 - - -;
-#X floatatom 553 194 9 0 0 0 - - -;
-#X floatatom 553 211 9 0 0 0 - - -;
-#X floatatom 553 228 9 0 0 0 - - -;
-#X floatatom 553 245 9 0 0 0 - - -;
-#X floatatom 553 262 9 0 0 0 - - -;
-#X floatatom 553 279 5 0 0 0 - - -;
-#X floatatom 553 296 5 0 0 0 - - -;
+#X floatatom 553 126 5 0 0 0 - - - 0;
+#X floatatom 553 143 5 0 0 0 - - - 0;
+#X floatatom 553 160 5 0 0 0 - - - 0;
+#X floatatom 553 177 9 0 0 0 - - - 0;
+#X floatatom 553 194 9 0 0 0 - - - 0;
+#X floatatom 553 211 9 0 0 0 - - - 0;
+#X floatatom 553 228 9 0 0 0 - - - 0;
+#X floatatom 553 245 9 0 0 0 - - - 0;
+#X floatatom 553 262 9 0 0 0 - - - 0;
+#X floatatom 553 279 5 0 0 0 - - - 0;
+#X floatatom 553 296 5 0 0 0 - - - 0;
 #X text 345 155 [0 - 1];
 #X text 345 188 [20 - 20k];
 #X text 345 172 [20 - 20k];
@@ -226,11 +136,12 @@ off if;
 #X obj 494 382 r p9;
 #X obj 529 382 r p10;
 #X obj 565 382 r p11;
-#X connect 0 0 1 1;
-#X connect 1 0 0 0;
-#X connect 2 0 1 2;
-#X connect 9 0 52 0;
-#X connect 24 0 72 0;
+#X obj 204 469 dac~;
+#X connect 6 0 49 0;
+#X connect 21 0 69 0;
+#X connect 23 0 50 0;
+#X connect 24 0 51 0;
+#X connect 25 0 52 0;
 #X connect 26 0 53 0;
 #X connect 27 0 54 0;
 #X connect 28 0 55 0;
@@ -238,21 +149,19 @@ off if;
 #X connect 30 0 57 0;
 #X connect 31 0 58 0;
 #X connect 32 0 59 0;
-#X connect 33 0 60 0;
-#X connect 34 0 61 0;
-#X connect 35 0 62 0;
-#X connect 49 0 24 0;
-#X connect 49 1 48 0;
-#X connect 50 0 49 0;
-#X connect 72 0 1 0;
-#X connect 73 0 24 0;
-#X connect 74 0 24 1;
-#X connect 75 0 24 2;
-#X connect 76 0 24 3;
-#X connect 77 0 24 4;
-#X connect 78 0 24 5;
-#X connect 79 0 24 6;
-#X connect 80 0 24 7;
-#X connect 81 0 24 8;
-#X connect 82 0 24 9;
-#X connect 83 0 24 10;
+#X connect 46 0 21 0;
+#X connect 46 1 45 0;
+#X connect 47 0 46 0;
+#X connect 69 0 81 0;
+#X connect 69 0 81 1;
+#X connect 70 0 21 0;
+#X connect 71 0 21 1;
+#X connect 72 0 21 2;
+#X connect 73 0 21 3;
+#X connect 74 0 21 4;
+#X connect 75 0 21 5;
+#X connect 76 0 21 6;
+#X connect 77 0 21 7;
+#X connect 78 0 21 8;
+#X connect 79 0 21 9;
+#X connect 80 0 21 10;
