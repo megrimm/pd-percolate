@@ -1,4 +1,4 @@
-// gen7 -- writes a wavetable from a linear bpf.
+// gen5 -- writes a wavetable from an exponential bpf.
 //		by r. luke dubois (luke@music.columbia.edu),
 //			computer music center, columbia university, 2001.
 //
@@ -8,6 +8,9 @@
 //	objects and source are provided without warranty of any kind, express or implied.
 //
 //  ported to Pure-Data by Olaf Matthes <olaf.matthes@gmx.de>, May 2002
+//
+
+
 
 /* the required include files */
 #ifdef MSP
@@ -31,7 +34,7 @@
 
 #ifdef MSP
 // object definition structure...
-typedef struct gen7
+typedef struct gen5
 {
 	Object g_ob;				// required header
 	void *g_out;				// an outlet
@@ -41,7 +44,7 @@ typedef struct gen7
 	float g_args[MAXSIZE];		// array for the harmonic fields
 	float *g_table;				// internal array for the wavetable
 	long g_rescale;				// flag to rescale array
-} gen7;
+} gen5;
 
 /* global necessary for 68K function macros to work */
 fptr *FNS;
@@ -50,43 +53,43 @@ fptr *FNS;
 void *class;
 
 // function prototypes here...
-void gen7_list(gen7 *x, Symbol *s, short ac, Atom *av);
-void gen7_assist(gen7 *x, void *b, long m, long a, char *s);
-void gen7_bang(gen7 *x);
-void gen7_offset(gen7 *x, long n);
-void gen7_size(gen7 *x, long n);
-void gen7_rescale(gen7 *x, long n);
-void *gen7_new(long n, long o);
-void *gen7_free(gen7 *x);
-void DoTheDo(gen7 *x);
+void gen5_list(gen5 *x, Symbol *s, short ac, Atom *av);
+void gen5_assist(gen5 *x, void *b, long m, long a, char *s);
+void gen5_bang(gen5 *x);
+void gen5_offset(gen5 *x, long n);
+void gen5_size(gen5 *x, long n);
+void gen5_rescale(gen5 *x, long n);
+void *gen5_new(long n, long o);
+void *gen5_free(gen5 *x);
+void DoTheDo(gen5 *x);
 
 // init routine...
 void main(fptr *f)
 {
 	
 	// define the class
-	setup(&class, gen7_new,gen7_free, (short)sizeof(gen7), 0L, A_DEFLONG, A_DEFLONG, 0);
+	setup(&class, gen5_new,gen5_free, (short)sizeof(gen5), 0L, A_DEFLONG, A_DEFLONG, 0);
 	// methods, methods, methods...
-	addbang((method)gen7_bang); /* put out the same shit */
-	addmess((method)gen7_size, "size", A_DEFLONG, 0); /* change buffer */
-	addmess((method)gen7_offset, "offset", A_DEFLONG, 0); /* change buffer offset */
-	addmess((method)gen7_rescale, "rescale", A_DEFLONG, 0); /* change array rescaling */
-	addmess((method)gen7_list, "list", A_GIMME, 0); /* the goods... */
-	addmess((method)gen7_assist,"assist",A_CANT,0); /* help */
+	addbang((method)gen5_bang); /* put out the same shit */
+	addmess((method)gen5_size, "size", A_DEFLONG, 0); /* change buffer */
+	addmess((method)gen5_offset, "offset", A_DEFLONG, 0); /* change buffer offset */
+	addmess((method)gen5_rescale, "rescale", A_DEFLONG, 0); /* change array rescaling */
+	addmess((method)gen5_list, "list", A_GIMME, 0); /* the goods... */
+	addmess((method)gen5_assist,"assist",A_CANT,0); /* help */
 	
-	post("gen7: by r. luke dubois, cmc");
+	post("gen5: by r. luke dubois, cmc");
 }
 
 // those methods
 
-void gen7_bang(gen7 *x)
+void gen5_bang(gen5 *x)
 {
 						
 	DoTheDo(x);
 	
 }
 
-void gen7_size(gen7 *x, long n)
+void gen5_size(gen5 *x, long n)
 {
 	
 	x->g_buffsize = n; // resize buffer
@@ -94,14 +97,14 @@ void gen7_size(gen7 *x, long n)
 
 }
 
-void gen7_offset(gen7 *x, long n)
+void gen5_offset(gen5 *x, long n)
 {
 	
 	x->g_offset = n; // change buffer offset
 
 }
 
-void gen7_rescale(gen7 *x, long n)
+void gen5_rescale(gen5 *x, long n)
 {
 	if(n>1) n = 1;
 	if(n<0) n = 0;
@@ -109,10 +112,9 @@ void gen7_rescale(gen7 *x, long n)
 
 }
 
-
 // instance creation...
 
-void gen7_list(gen7 *x, Symbol *s, short argc, Atom *argv)
+void gen5_list(gen5 *x, Symbol *s, short argc, Atom *argv)
 {
 
 	// parse the list of incoming harmonics...
@@ -129,25 +131,27 @@ void gen7_list(gen7 *x, Symbol *s, short argc, Atom *argv)
 	DoTheDo(x);
 }
 
-void DoTheDo(gen7 *x)
+void DoTheDo(gen5 *x)
 {
 	register short j,k,l;
 	Atom thestuff[2];
-	float scaler, amp2, amp1, wmax, xmax=0.0;
+	float c, amp2, amp1, wmax, xmax=0.0;
 	int i=0;
 
+
 	amp2 = x->g_args[0];
-	for(k=1; k<x->g_numpoints; k += 2)   {
+	for(k = 1; k < x->g_numpoints; k += 2) {
 		amp1 = amp2;
 		amp2 = x->g_args[k+1];
 		j = i + 1;
-		i = j + x->g_args[k] - 1;
-		     for(l=j; l<=i; l++) {
-				if(l <= x->g_buffsize)
-				   x->g_table[l-1] = amp1 +
-				      (amp2-amp1)*(float)(l-j)/(i-j+1);
-					}
-			}
+		x->g_table[i] = amp1;
+		c = (float) pow((amp2/amp1),(1./x->g_args[k]));
+		i = (j - 1) + x->g_args[k];
+		for(l = j; l < i; l++) {
+			if(l < x->g_buffsize)
+				x->g_table[l] = x->g_table[l-1] * c;
+  			}
+		}
 
 if(x->g_rescale) {
 	// rescale the wavetable to go between -1. and 1.
@@ -167,9 +171,9 @@ if(x->g_rescale) {
 	}
 }
 
-void *gen7_new(long n, long o)
+void *gen5_new(long n, long o)
 {
-	gen7 *x;
+	gen5 *x;
 	register short c;
 	
 	x = newobject(class);		// get memory for the object
@@ -186,7 +190,7 @@ void *gen7_new(long n, long o)
 
 // initialize wavetable size (must allocate memory)
 	x->g_buffsize=512;
-
+	
 	x->g_rescale=1;
 
 if (n) {
@@ -209,7 +213,7 @@ if (n) {
 	return (x);							// return newly created object and go go go...
 }
 
-void *gen7_free(gen7 *x)
+void *gen5_free(gen5 *x)
 {
 	if (x != NULL) {
 		if (x->g_table != NULL) {
@@ -218,7 +222,7 @@ void *gen7_free(gen7 *x)
 	}
 }
 
-void gen7_assist(gen7 *x, void *b, long msg, long arg, char *dst)
+void gen5_assist(gen5 *x, void *b, long msg, long arg, char *dst)
 {
 	switch(msg) {
 		case 1: // inlet
@@ -237,13 +241,12 @@ void gen7_assist(gen7 *x, void *b, long msg, long arg, char *dst)
 		break;
 	}
 }
-#endif /* MSP */
+#endif
 
-
-/* -------------------------------------- pure-data ---------------------------- */
+/* ------------------------------------- Pure-Data ---------------------------------- */
 #ifdef PD
 // object definition structure...
-typedef struct gen7
+typedef struct gen5
 {
 	t_object g_ob;				// required header
 	t_outlet *g_out;				// an outlet
@@ -253,32 +256,34 @@ typedef struct gen7
 	t_float g_args[MAXSIZE];		// array for the harmonic fields
 	t_float *g_table;				// internal array for the wavetable
 	t_int g_rescale;				// flag to rescale array
-} gen7;
+} gen5;
 
 
 	/* globalthat holds the class definition */
-static t_class *gen7_class;
+static t_class *gen5_class;
 
 // those methods
-static void DoTheDo(gen7 *x)
+static void DoTheDo(gen5 *x)
 {
 	register short j,k,l;
 	t_atom thestuff[2];
-	t_float scaler, amp2, amp1, wmax, xmax=0.0;
+	t_float c, amp2, amp1, wmax, xmax=0.0;
 	t_int i=0;
 
+
 	amp2 = x->g_args[0];
-	for(k=1; k<x->g_numpoints; k += 2)   {
+	for(k = 1; k < x->g_numpoints; k += 2) {
 		amp1 = amp2;
 		amp2 = x->g_args[k+1];
 		j = i + 1;
-		i = j + x->g_args[k] - 1;
-		     for(l=j; l<=i; l++) {
-				if(l <= x->g_buffsize)
-				   x->g_table[l-1] = amp1 +
-				      (amp2-amp1)*(t_float)(l-j)/(i-j+1);
-					}
-			}
+		x->g_table[i] = amp1;
+		c = (t_float) pow((amp2/amp1),(1./x->g_args[k]));
+		i = (j - 1) + x->g_args[k];
+		for(l = j; l < i; l++) {
+			if(l < x->g_buffsize)
+				x->g_table[l] = x->g_table[l-1] * c;
+  			}
+		}
 
 	if(x->g_rescale) {
 		// rescale the wavetable to go between -1. and 1.
@@ -298,14 +303,14 @@ static void DoTheDo(gen7 *x)
 	}
 }
 
-static void gen7_bang(gen7 *x)
+static void gen5_bang(gen5 *x)
 {
 						
 	DoTheDo(x);
 	
 }
 
-static void gen7_size(gen7 *x, t_floatarg n)
+static void gen5_size(gen5 *x, t_floatarg n)
 {
 	
 	x->g_buffsize = n; // resize buffer
@@ -313,14 +318,14 @@ static void gen7_size(gen7 *x, t_floatarg n)
 
 }
 
-static void gen7_offset(gen7 *x, t_floatarg n)
+static void gen5_offset(gen5 *x, t_floatarg n)
 {
 	
 	x->g_offset = n; // change buffer offset
 
 }
 
-static void gen7_rescale(gen7 *x, t_floatarg n)
+static void gen5_rescale(gen5 *x, t_floatarg n)
 {
 	if(n>1) n = 1;
 	if(n<0) n = 0;
@@ -330,7 +335,7 @@ static void gen7_rescale(gen7 *x, t_floatarg n)
 
 // instance creation...
 
-static void gen7_list(gen7 *x, t_symbol *s, t_int argc, t_atom *argv)
+static void gen5_list(gen5 *x, t_symbol *s, t_int argc, t_atom *argv)
 {
 
 	// parse the list of incoming harmonics...
@@ -345,11 +350,11 @@ static void gen7_list(gen7 *x, t_symbol *s, t_int argc, t_atom *argv)
 }
 
 
-static void *gen7_new(t_floatarg n, t_floatarg o)
+static void *gen5_new(t_floatarg n, t_floatarg o)
 {
 	register short c;
 	
-	gen7 *x = (gen7 *)pd_new(gen7_class);		// get memory for the object
+	gen5 *x = (gen5 *)pd_new(gen5_class);		// get memory for the object
 	
 	x->g_offset = 0;
 	if (o) {
@@ -375,7 +380,7 @@ static void *gen7_new(t_floatarg n, t_floatarg o)
 	x->g_table=NULL;
 	x->g_table = (t_float*) getbytes(sizeof(t_float) * BUFFER);
 	if (x->g_table == NULL) {
-		error("memory allocation error\n"); // whoops, out of memory...
+		perror("memory allocation error\n"); // whoops, out of memory...
 		return (x);
 	}
 
@@ -385,11 +390,11 @@ static void *gen7_new(t_floatarg n, t_floatarg o)
 	}
 
 	x->g_out = outlet_new(&x->g_ob, gensym("float"));				// create a list outlet
-	post("gen7: by r. luke dubois, cmc");
+	post("gen5: by r. luke dubois, cmc");
 	return (x);							// return newly created object and go go go...
 }
 
-static void *gen7_free(gen7 *x)
+static void *gen5_free(gen5 *x)
 {
 	if (x != NULL) {
 		if (x->g_table != NULL) {
@@ -400,15 +405,15 @@ static void *gen7_free(gen7 *x)
 }
 
 // init routine...
-void gen7_setup(void)
+void gen5_setup(void)
 {
-	gen7_class = class_new(gensym("gen7"), (t_newmethod)gen7_new, (t_method)gen7_free,
-        sizeof(gen7), 0, A_DEFFLOAT, A_DEFFLOAT, 0);
-	class_addbang(gen7_class, (t_method)gen7_bang); /* put out the same shit */
-    class_addmethod(gen7_class, (t_method)gen7_size, gensym("size"), A_FLOAT, 0);	/* change buffer */
-    class_addmethod(gen7_class, (t_method)gen7_offset, gensym("offset"), A_FLOAT, 0);	/* change buffer offset */
-	class_addmethod(gen7_class, (t_method)gen7_rescale, gensym("rescale"), A_FLOAT, 0);	/* change array rescaling */
-	class_addmethod(gen7_class, (t_method)gen7_list, gensym("list"), A_GIMME, 0);	/* the goods... */
-    class_sethelpsymbol(gen7_class, gensym("help-gen7.pd"));
+	gen5_class = class_new(gensym("gen5"), (t_newmethod)gen5_new, (t_method)gen5_free,
+        sizeof(gen5), 0, A_DEFFLOAT, A_DEFFLOAT, 0);
+	class_addbang(gen5_class, (t_method)gen5_bang); /* put out the same shit */
+    class_addmethod(gen5_class, (t_method)gen5_size, gensym("size"), A_FLOAT, 0);	/* change buffer */
+    class_addmethod(gen5_class, (t_method)gen5_offset, gensym("offset"), A_FLOAT, 0);	/* change buffer offset */
+	class_addmethod(gen5_class, (t_method)gen5_rescale, gensym("rescale"), A_FLOAT, 0);	/* change array rescaling */
+	class_addmethod(gen5_class, (t_method)gen5_list, gensym("list"), A_GIMME, 0);	/* the goods... */
+    class_sethelpsymbol(gen5_class, gensym("help-gen5.pd"));
 }
 #endif /* PD */

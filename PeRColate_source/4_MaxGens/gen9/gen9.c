@@ -1,14 +1,13 @@
-// gen24 -- writes a wavetable from a generic break-point function.
+// gen9 -- writes a wavetable from a triplet list of harmonic, amp, phase.
 //		by r. luke dubois (luke@music.columbia.edu),
-//			computer music center, columbia university, 2000.
+//			computer music center, columbia university, 2001.
 //
 //		ported from real-time cmix by brad garton and dave topper.
 //			http://www.music.columbia.edu/cmix
 //
 //	objects and source are provided without warranty of any kind, express or implied.
 //
-//  ported to pure-data by Olaf Matthes <olaf.matthes@gmx.de>, May 2002
-//
+//  pd-port made by Olaf Matthes <olaf.matthes@gmx.de>, Mai 2002
 
 /* the required include files */
 #ifdef MSP
@@ -23,7 +22,7 @@
 #endif
 #include <math.h>
 
-// maximum number of time/amp. pairs specified in a list -- if you make it larger you better 
+// maximum number of p-fields specified in a list -- if you make it larger you better 
 // allocated the memory dynamically (right now it's using built-in memory)...
 #define MAXSIZE 64
 #define BUFFER 32768
@@ -32,7 +31,7 @@
 
 #ifdef MSP
 // object definition structure...
-typedef struct gen24
+typedef struct gen9
 {
 	Object g_ob;				// required header
 	void *g_out;				// an outlet
@@ -42,49 +41,52 @@ typedef struct gen24
 	float g_args[MAXSIZE];		// array for the harmonic fields
 	float *g_table;				// internal array for the wavetable
 	long g_rescale;				// flag to rescale array
-} Gen24;
+} gen9;
+
+/* global necessary for 68K function macros to work */
+fptr *FNS;
 
 /* globalthat holds the class definition */
 void *class;
 
 // function prototypes here...
-void gen24_list(Gen24 *x, Symbol *s, short ac, Atom *av);
-void gen24_assist(Gen24 *x, void *b, long m, long a, char *s);
-void gen24_bang(Gen24 *x);
-void gen24_offset(Gen24 *x, long n);
-void gen24_size(Gen24 *x, long n);
-void gen24_rescale(Gen24 *x, long n);
-void *gen24_new(long n, long o);
-void *gen24_free(Gen24 *x);
-void DoTheDo(Gen24 *x);
+void gen9_list(gen9 *x, Symbol *s, short ac, Atom *av);
+void gen9_assist(gen9 *x, void *b, long m, long a, char *s);
+void gen9_bang(gen9 *x);
+void gen9_offset(gen9 *x, long n);
+void gen9_size(gen9 *x, long n);
+void gen9_rescale(gen9 *x, long n);
+void *gen9_new(long n, long o);
+void *gen9_free(gen9 *x);
+void DoTheDo(gen9 *x);
 
 // init routine...
 void main(fptr *f)
 {
 	
 	// define the class
-	setup(&class, gen24_new,gen24_free, (short)sizeof(Gen24), 0L, A_DEFLONG, A_DEFLONG, 0);
+	setup(&class, gen9_new,gen9_free, (short)sizeof(gen9), 0L, A_DEFLONG, A_DEFLONG, 0);
 	// methods, methods, methods...
-	addbang((method)gen24_bang); /* put out the same shit */
-	addmess((method)gen24_size, "size", A_DEFLONG, 0); /* change buffer */
-	addmess((method)gen24_offset, "offset", A_DEFLONG, 0); /* change buffer offset */
-	addmess((method)gen24_rescale, "rescale", A_DEFLONG, 0); /* change array rescaling */
-	addmess((method)gen24_list, "list", A_GIMME, 0); /* the goods... */
-	addmess((method)gen24_assist,"assist",A_CANT,0); /* help */
-
-	post("gen24: by r. luke dubois, cmc");
+	addbang((method)gen9_bang); /* put out the same shit */
+	addmess((method)gen9_size, "size", A_DEFLONG, 0); /* change buffer */
+	addmess((method)gen9_offset, "offset", A_DEFLONG, 0); /* change buffer offset */
+	addmess((method)gen9_rescale, "rescale", A_DEFLONG, 0); /* change array rescaling */
+	addmess((method)gen9_list, "list", A_GIMME, 0); /* the goods... */
+	addmess((method)gen9_assist,"assist",A_CANT,0); /* help */
+	
+	post("gen9: by r. luke dubois, cmc");
 }
 
 // those methods
 
-void gen24_bang(Gen24 *x)
+void gen9_bang(gen9 *x)
 {
 						
 	DoTheDo(x);
 	
 }
 
-void gen24_size(Gen24 *x, long n)
+void gen9_size(gen9 *x, long n)
 {
 	
 	x->g_buffsize = n; // resize buffer
@@ -92,15 +94,14 @@ void gen24_size(Gen24 *x, long n)
 
 }
 
-void gen24_offset(Gen24 *x, long n)
+void gen9_offset(gen9 *x, long n)
 {
 	
 	x->g_offset = n; // change buffer offset
 
 }
 
-
-void gen24_rescale(Gen24 *x, long n)
+void gen9_rescale(gen9 *x, long n)
 {
 	if(n>1) n = 1;
 	if(n<0) n = 0;
@@ -108,16 +109,13 @@ void gen24_rescale(Gen24 *x, long n)
 
 }
 
-
-
 // instance creation...
 
-void gen24_list(Gen24 *x, Symbol *s, short argc, Atom *argv)
+void gen9_list(gen9 *x, Symbol *s, short argc, Atom *argv)
 {
 
 	// parse the list of incoming harmonics...
 	register short i;
-
 	for (i=0; i < argc; i++) {
 		if (argv[i].a_type==A_LONG) {
 			x->g_args[i] = (float)argv[i].a_w.w_long;
@@ -130,26 +128,23 @@ void gen24_list(Gen24 *x, Symbol *s, short argc, Atom *argv)
 	DoTheDo(x);
 }
 
-void DoTheDo(Gen24 *x)
+void DoTheDo(gen9 *x)
 {
 	register short i,j,k,l;
 	Atom thestuff[2];
 	float scaler, amp2, amp1, wmax, xmax=0.0;
+	double sin();
 	
-	// compute the wavetable...
-	for(i = 0; i<x->g_buffsize; i++) x->g_table[i] = 0.0;
-	i=0;
-	scaler = ((float) x->g_buffsize)/x->g_args[x->g_numpoints-2];
-	amp2 = x->g_args[1];
-	for(k = 1; k < x->g_numpoints; k += 2) {
-		amp1 = amp2;
-		amp2 = x->g_args[k+2];
-		j = i + 1;
-		i = x->g_args[k+1]*scaler + 1;
-		for(l=j; l<=i; l++) {
-			if(l <= x->g_buffsize)
-				x->g_table[l-1] = amp1 +
-				(amp2-amp1) * (float)(l-j) / (i-j+1);
+
+	for(i = 0; i < x->g_buffsize; i++) x->g_table[i] = 0;
+
+	for(j = x->g_numpoints-1; j > 0; j -= 3) {
+		if(x->g_args[j-1] != 0) {
+			for(i = 0; i < x->g_buffsize; i++) {
+				x->g_table[i] += (float) (sin(PI2*((float)i/
+				((float) (x->g_buffsize)/x->g_args[j-2]) +
+				x->g_args[j]/360.)) * x->g_args[j-1]);
+				}
 			}
 		}
 
@@ -171,9 +166,9 @@ if(x->g_rescale) {
 	}
 }
 
-void *gen24_new(long n, long o)
+void *gen9_new(long n, long o)
 {
-	Gen24 *x;
+	gen9 *x;
 	register short c;
 	
 	x = newobject(class);		// get memory for the object
@@ -192,6 +187,7 @@ void *gen24_new(long n, long o)
 	x->g_buffsize=512;
 	
 	x->g_rescale=1;
+
 
 if (n) {
 	x->g_buffsize=n;
@@ -213,7 +209,7 @@ if (n) {
 	return (x);							// return newly created object and go go go...
 }
 
-void *gen24_free(Gen24 *x)
+void *gen9_free(gen9 *x)
 {
 	if (x != NULL) {
 		if (x->g_table != NULL) {
@@ -222,7 +218,7 @@ void *gen24_free(Gen24 *x)
 	}
 }
 
-void gen24_assist(Gen24 *x, void *b, long msg, long arg, char *dst)
+void gen9_assist(gen9 *x, void *b, long msg, long arg, char *dst)
 {
 	switch(msg) {
 		case 1: // inlet
@@ -242,10 +238,11 @@ void gen24_assist(Gen24 *x, void *b, long msg, long arg, char *dst)
 	}
 }
 #endif /* MSP */
-/* -------------------------------------- pure data ---------------------------------- */
+
+/* --------------------------------- pure-data ---------------------------------------------- */
 #ifdef PD
 // object definition structure...
-typedef struct gen24
+typedef struct gen9
 {
 	t_object g_ob;				// required header
 	t_outlet *g_out;				// an outlet
@@ -255,47 +252,50 @@ typedef struct gen24
 	float g_args[MAXSIZE];		// array for the harmonic fields
 	float *g_table;				// internal array for the wavetable
 	long g_rescale;				// flag to rescale array
-} gen24;
+} gen9;
 
 /* globalthat holds the class definition */
-static t_class *gen24_class;
+static t_class *gen9_class;
 
 // those methods
 
-static void DoTheDo(gen24 *x)
+static void DoTheDo(gen9 *x)
 {
 	register short i,j,k,l;
 	t_atom thestuff[2];
 	float scaler, amp2, amp1, wmax, xmax=0.0;
+	double sin(double);
 	
-	// compute the wavetable...
-	for(i = 0; i<x->g_buffsize; i++) x->g_table[i] = 0.0;
-	i=0;
-	scaler = ((float) x->g_buffsize)/x->g_args[x->g_numpoints-2];
-	amp2 = x->g_args[1];
-	for(k = 1; k < x->g_numpoints; k += 2) {
-		amp1 = amp2;
-		amp2 = x->g_args[k+2];
-		j = i + 1;
-		i = x->g_args[k+1]*scaler + 1;
-		for(l=j; l<=i; l++) {
-			if(l <= x->g_buffsize)
-				x->g_table[l-1] = amp1 +
-				(amp2-amp1) * (float)(l-j) / (i-j+1);
+
+	for(i = 0; i < x->g_buffsize; i++) x->g_table[i] = 0;
+
+	for(j = x->g_numpoints-1; j > 0; j -= 3)
+	{
+		if(x->g_args[j-1] != 0)
+		{
+			for(i = 0; i < x->g_buffsize; i++)
+			{
+				x->g_table[i] += (float) (sin(PI2*((float)i/
+				((float) (x->g_buffsize)/x->g_args[j-2]) +
+				x->g_args[j]/360.)) * x->g_args[j-1]);
 			}
 		}
-
-if(x->g_rescale) {
-	// rescale the function to make sure it stays between -1. and 1.
-	for(j = 0; j < x->g_buffsize; j++) {
-		if ((wmax = fabs(x->g_table[j])) > xmax) xmax = wmax;
 	}
-	for(j = 0; j < x->g_buffsize; j++) {
-		x->g_table[j] /= xmax;
-	}
-}
 
-	// output the transfer function in index/amplitude pairs...
+	if(x->g_rescale)
+	{
+		// rescale the wavetable to go between -1. and 1.
+		for(j = 0; j < x->g_buffsize; j++)
+		{
+			if ((wmax = fabs(x->g_table[j])) > xmax) xmax = wmax;
+		}
+		for(j = 0; j < x->g_buffsize; j++)
+		{
+			x->g_table[j] /= xmax;
+		}
+	}
+
+	// output the wavetable in index, amplitude pairs...
 	for(i=0;i<x->g_buffsize;i++) {
 		SETFLOAT(thestuff,i+(x->g_offset*x->g_buffsize));
 		SETFLOAT(thestuff+1,x->g_table[i]);
@@ -303,14 +303,14 @@ if(x->g_rescale) {
 	}
 }
 
-static void gen24_bang(gen24 *x)
+static void gen9_bang(gen9 *x)
 {
 						
 	DoTheDo(x);
 	
 }
 
-static void gen24_size(gen24 *x, t_floatarg n)
+static void gen9_size(gen9 *x, t_floatarg n)
 {
 	
 	x->g_buffsize = n; // resize buffer
@@ -318,14 +318,14 @@ static void gen24_size(gen24 *x, t_floatarg n)
 
 }
 
-static void gen24_offset(gen24 *x, t_floatarg n)
+static void gen9_offset(gen9 *x, t_floatarg n)
 {
 	
 	x->g_offset = (long)n; // change buffer offset
 
 }
 
-static void gen24_rescale(gen24 *x, t_floatarg n)
+static void gen9_rescale(gen9 *x, t_floatarg n)
 {
 	if(n>1) n = 1.0;
 	if(n<0) n = 0.0;
@@ -335,7 +335,7 @@ static void gen24_rescale(gen24 *x, t_floatarg n)
 
 // instance creation...
 
-void gen24_list(gen24 *x, t_symbol *s, t_int argc, t_atom *argv)
+void gen9_list(gen9 *x, t_symbol *s, t_int argc, t_atom *argv)
 {
 
 	// parse the list of incoming harmonics...
@@ -352,11 +352,11 @@ void gen24_list(gen24 *x, t_symbol *s, t_int argc, t_atom *argv)
 }
 
 
-void *gen24_new(t_floatarg n, t_floatarg o)
+void *gen9_new(t_floatarg n, t_floatarg o)
 {
 	register short c;
 	
-	gen24 *x = (gen24 *)pd_new(gen24_class);
+	gen9 *x = (gen9 *)pd_new(gen9_class);
 	
 	x->g_offset = 0;
 	if (o) {
@@ -384,7 +384,7 @@ void *gen24_new(t_floatarg n, t_floatarg o)
 	x->g_table = (float*)getbytes(sizeof(float) * BUFFER);
 	if (x->g_table == NULL)
 	{
-		error("memory allocation error\n"); // whoops, out of memory...
+		perror("memory allocation error\n"); // whoops, out of memory...
 		return (x);
 	}
 
@@ -393,11 +393,11 @@ void *gen24_new(t_floatarg n, t_floatarg o)
 		x->g_table[c]=0.0;
 	}
 	x->g_out = outlet_new(&x->g_ob, gensym("float"));
-	post("gen24: by r. luke dubois, cmc");
+	post("gen9: by r. luke dubois, cmc");
 	return (x);							// return newly created object and go go go...
 }
 
-static void *gen24_free(gen24 *x)
+static void *gen9_free(gen9 *x)
 {
 	if (x != NULL)
 	{
@@ -409,16 +409,18 @@ static void *gen24_free(gen24 *x)
 	return(x);
 }
 // init routine...
-void gen24_setup(void)
+void gen9_setup(void)
 {
-	gen24_class = class_new(gensym("gen24"), (t_newmethod)gen24_new, (t_method)gen24_free,
-        sizeof(gen24), 0, A_DEFFLOAT, A_DEFFLOAT, 0);
-	class_addbang(gen24_class, (t_method)gen24_bang); /* put out the same shit */
-    class_addmethod(gen24_class, (t_method)gen24_size, gensym("size"), A_FLOAT, 0);	/* change buffer */
-    class_addmethod(gen24_class, (t_method)gen24_offset, gensym("offset"), A_FLOAT, 0);	/* change buffer offset */
-	class_addmethod(gen24_class, (t_method)gen24_rescale, gensym("rescale"), A_FLOAT, 0);	/* change array rescaling */
-	class_addmethod(gen24_class, (t_method)gen24_list, gensym("list"), A_GIMME, 0);	/* the goods... */
-    class_sethelpsymbol(gen24_class, gensym("help-gen24.pd"));
+	gen9_class = class_new(gensym("gen9"), (t_newmethod)gen9_new, (t_method)gen9_free,
+        sizeof(gen9), 0, A_DEFFLOAT, A_DEFFLOAT, 0);
+	class_addbang(gen9_class, (t_method)gen9_bang); /* put out the same shit */
+    class_addmethod(gen9_class, (t_method)gen9_size, gensym("size"), A_FLOAT, 0);	/* change buffer */
+    class_addmethod(gen9_class, (t_method)gen9_offset, gensym("offset"), A_FLOAT, 0);	/* change buffer offset */
+	class_addmethod(gen9_class, (t_method)gen9_rescale, gensym("rescale"), A_FLOAT, 0);	/* change array rescaling */
+	class_addmethod(gen9_class, (t_method)gen9_list, gensym("list"), A_GIMME, 0);	/* the goods... */
+    class_sethelpsymbol(gen9_class, gensym("help-gen9.pd"));
 }
 #endif /* PD */
+	
 
+	

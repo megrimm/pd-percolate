@@ -449,11 +449,11 @@ static void gen20_int(gen20 *x, t_floatarg mode)
 	// parse the mode...
 	register short i;
 	if(mode<0) {
-	error("don't know about mode %g", mode);
+	pd_error(NULL, "don't know about mode %g", mode);
 	x->g_mode = 0;
 	}
 	else if(mode>5) {
-	error("don't know about mode %g", mode);
+	pd_error(NULL, "don't know about mode %g", mode);
 	x->g_mode = 0;
 	}
 	else {
@@ -488,7 +488,7 @@ if (n) {
 	x->g_table=NULL;
 	x->g_table = (t_float*) getbytes(sizeof(t_float) * BUFFER);
 	if (x->g_table == NULL) {
-		error("memory allocation error"); // whoops, out of memory...
+		perror("memory allocation error"); // whoops, out of memory...
 		return (x);
 	}
 

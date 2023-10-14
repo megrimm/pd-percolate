@@ -1575,7 +1575,7 @@ static void munger_alloc(t_munger *x)
 	//x->recordBuf = t_getbytes(BUFLENGTH * sizeof(float));
 	x->recordBuf = t_getbytes(x->buflen * sizeof(t_float));
 	if (!x->recordBuf) {
-		error("munger: out of memory");
+		perror("munger: out of memory");
 		return;
 	}
 }

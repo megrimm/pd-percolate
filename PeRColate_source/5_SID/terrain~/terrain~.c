@@ -327,7 +327,7 @@ static void terrain_set(t_terrain *x, t_symbol *s)
 	{
 		x->l_buf = b;
 	} else {
-		error("terrain~: no buffer~ %s (error %d)", s->s_name, b);
+		pd_error(NULL, "terrain~: no buffer~ %s (error %d)", s->s_name, b);
 		x->l_buf = 0;
 	}
 }

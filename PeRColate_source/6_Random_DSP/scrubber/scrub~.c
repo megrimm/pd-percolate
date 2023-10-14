@@ -870,19 +870,19 @@ void scrub_alloc(t_scrub *x){
 	x->buf0 = t_getbytes(BUFLENGTH * sizeof(t_float));
 	//x->buf0 = t_getbytes(x->buflen * sizeof(float));
 	if (!x->buf0) {
-		error("scrub: out of memory");
+		perror("scrub: out of memory");
 		return;
 	}
 	x->buf1 = t_getbytes(BUFLENGTH * sizeof(t_float));
 	//x->buf1 = t_getbytes(x->buflen * sizeof(float));
 	if (!x->buf1) {
-		error("scrub: out of memory");
+		perror("scrub: out of memory");
 		return;
 	}
 	x->buf2 = t_getbytes(BUFLENGTH * sizeof(t_float));
 	//x->buf2 = t_getbytes(x->buflen * sizeof(float));
 	if (!x->buf2) {
-		error("scrub: out of memory");
+		perror("scrub: out of memory");
 		return;
 	}
 }
